@@ -55,12 +55,6 @@ build CMakeFiles/Village_War_Game.dir/main.cpp.obj: CXX_COMPILER__Village_War_Ga
   OBJECT_DIR = CMakeFiles\Village_War_Game.dir
   OBJECT_FILE_DIR = CMakeFiles\Village_War_Game.dir
 
-build CMakeFiles/Village_War_Game.dir/Includes/Game_Setup.cpp.obj: CXX_COMPILER__Village_War_Game_Debug C$:/Users/markd/C++/Village_War_Game/Includes/Game_Setup.cpp || cmake_object_order_depends_target_Village_War_Game
-  DEP_FILE = CMakeFiles\Village_War_Game.dir\Includes\Game_Setup.cpp.obj.d
-  FLAGS = -g -std=gnu++14
-  OBJECT_DIR = CMakeFiles\Village_War_Game.dir
-  OBJECT_FILE_DIR = CMakeFiles\Village_War_Game.dir\Includes
-
 
 # =============================================================================
 # Link build statements for EXECUTABLE target Village_War_Game
@@ -69,7 +63,7 @@ build CMakeFiles/Village_War_Game.dir/Includes/Game_Setup.cpp.obj: CXX_COMPILER_
 #############################################
 # Link the executable Village_War_Game.exe
 
-build Village_War_Game.exe: CXX_EXECUTABLE_LINKER__Village_War_Game_Debug CMakeFiles/Village_War_Game.dir/main.cpp.obj CMakeFiles/Village_War_Game.dir/Includes/Game_Setup.cpp.obj
+build Village_War_Game.exe: CXX_EXECUTABLE_LINKER__Village_War_Game_Debug CMakeFiles/Village_War_Game.dir/main.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\Village_War_Game.dir
