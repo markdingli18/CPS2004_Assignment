@@ -1,0 +1,3 @@
+C:/Users/markd/C++/Village_War_Game/cmake-build-debug/CMakeFiles/Village_War_Game.dir
+C:/Users/markd/C++/Village_War_Game/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/markd/C++/Village_War_Game/cmake-build-debug/CMakeFiles/rebuild_cache.dir
