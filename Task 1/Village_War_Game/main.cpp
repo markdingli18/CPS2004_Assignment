@@ -39,7 +39,7 @@ struct Building {
     int level; // Current level of the building
     int resourceGenerationRate; // Rate at which the building generates resources (if applicable)
     int troopGenerationCost; // Cost to generate a troop (if applicable)
-    int trainingTime; // Time it takes to train a troop (if applicable)
+    int troopGenerationRate;
     Resources costToUpgrade;
 };
 
@@ -61,6 +61,7 @@ struct Village {
     std::vector<Building> buildings; // vector of buildings in the village
     std::vector<Troop> troops; // vector of troops in the village
     Resources resources;
+    int id; // ID of the village
 };
 
 ////--------------------------------------------------------------------------------------------------------------------
@@ -82,8 +83,9 @@ Map generateMap(int width, int height) {
     return map;
 }
 
-/*// Print Map
+// Print Map
 void printMap(const Map& map, const std::vector<Village>& villages) {
+    std::cout << "Game Map:\n" << std::endl;
     for (int y = 0; y < map.height; y++) {
         for (int x = 0; x < map.width; x++) {
             // Check if the current cell corresponds to the location of a village
@@ -105,9 +107,9 @@ void printMap(const Map& map, const std::vector<Village>& villages) {
         }
         std::cout << std::endl;
     }
-    std::cout << "\n===================================================================================================\n" << std::endl;
+    std::cout << "\n===================================================================================================" << std::endl;
 
-}*/
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 //// Troops
@@ -186,17 +188,14 @@ std::vector<Building> generateBuildings(Village &village) {
         if (i == 0) {
             building.name = "Barracks";
             building.troopGenerationCost = 50;
-            building.trainingTime = 5;
             building.costToUpgrade = {200, 100, 60};
         } else if (i == 1) {
             building.name = "Archery Range";
             building.troopGenerationCost = 40;
-            building.trainingTime = 3;
             building.costToUpgrade = {160, 80, 40};
         } else {
             building.name = "Stables";
             building.troopGenerationCost = 60;
-            building.trainingTime = 7;
             building.costToUpgrade = {120, 60, 30};
         }
         buildings.push_back(building);
@@ -222,7 +221,6 @@ bool upgradeBuilding(Village &village, Building &building) {
             building.resourceGenerationRate += 10;
         } else {
             building.troopGenerationCost += 20;
-            building.trainingTime -= 1;
         }
         // Increase the cost to upgrade the building
         building.costToUpgrade.wood += 20;
@@ -234,7 +232,6 @@ bool upgradeBuilding(Village &village, Building &building) {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-//// Villages
 // Generates a vector of Village objects for the specified number of players and AIs
 std::vector<Village> generateVillages(int numPlayers, int numAIs) {
     std::vector<Village> villages;
@@ -248,6 +245,7 @@ std::vector<Village> generateVillages(int numPlayers, int numAIs) {
     playerVillage.health = 100;
     playerVillage.buildings = generateBuildings(playerVillage);
     playerVillage.troops = generateTroops(playerVillage);
+    playerVillage.id = 0;
     villages.push_back(playerVillage);
 
     // Generate the AI villages
@@ -260,19 +258,20 @@ std::vector<Village> generateVillages(int numPlayers, int numAIs) {
         aiVillage.health = 100;
         aiVillage.buildings = generateBuildings(aiVillage);
         aiVillage.troops = generateTroops(aiVillage);
+        aiVillage.id = i + 1; // Assign unique ID to each AI village
         villages.push_back(aiVillage);
     }
 
     return villages;
 }
-
 ////--------------------------------------------------------------------------------------------------------------------
 
 ////Functions
 // Return true if the user wants to continue playing, false otherwise
 bool gameIsRunning() {
     // Prompt the user to continue or quit
-    std::cout << "\nEnter Q to quit or any other key to continue: ";
+    std::cout << "\n=======================================================================\n"<< std::endl;
+    std::cout << "\t   Enter Q to quit or any other key to continue: ";
     char input;
     std::cin >> input;
     std::cout << "\n=======================================================================\n" << std::endl;
@@ -331,29 +330,336 @@ void generateResources(Village &village) {
         }
     }
 }
+//------------------------------------------------------------------------------------------------------------------
+
+void attackVillage(Village &attackingVillage, Village &defendingVillage) {
+    // Create a vector to store the selected troops
+    std::vector<Troop> selectedTroops;
+
+    std::cout << "\n=======================================================================\n"<< std::endl;
+    std::cout << "Number of Swordsmen: " << swordsmanCount << std::endl;
+    std::cout << "Number of Archers: " << archerCount << std::endl;
+    std::cout << "Number of Cavalry: " << cavalryCount << std::endl;
+    std::cout << "\n"<< std::endl;
+
+    // Prompt the player to select troops
+    std::cout << "Enter the number of Swordsmen you want to send: ";
+    int numSwordsmen;
+    std::cin >> numSwordsmen;
+    for (int i = 0; i < numSwordsmen; i++) {
+        // Find a Swordsmen troop to send
+        bool foundTroop = false;
+        for (size_t j = 0; j < attackingVillage.troops.size(); j++) {
+            if (attackingVillage.troops[j].type == "Swordsman") {
+                selectedTroops.push_back(attackingVillage.troops[j]);
+                attackingVillage.troops.erase(attackingVillage.troops.begin() + j);
+                foundTroop = true;
+                break;
+            }
+        }
+        if (!foundTroop) {
+            std::cout << "You don't have any more Swordsmen available.\n";
+            break;
+        }
+    }
+
+    // Prompt the player to select troops
+    std::cout << "Enter the number of Archers you want to send: ";
+    int numArcher;
+    std::cin >> numArcher;
+    for (int i = 0; i < numArcher; i++) {
+        // Find an Archer troop to send
+        bool foundTroop = false;
+        for (size_t j = 0; j < attackingVillage.troops.size(); j++) {
+            if (attackingVillage.troops[j].type == "Archer") {
+                selectedTroops.push_back(attackingVillage.troops[j]);
+                attackingVillage.troops.erase(attackingVillage.troops.begin() + j);
+                foundTroop = true;
+                break;
+            }
+        }
+        if (!foundTroop) {
+            std::cout << "You don't have any more Archers available.\n";
+            break;
+        }
+    }
+
+    // Prompt the player to select troops
+    std::cout << "Enter the number of Cavalry you want to send: ";
+    int numCavalry;
+    std::cin >> numCavalry;
+    for (int i = 0; i < numCavalry; i++) {
+        // Find a Cavalry troop to send
+        bool foundTroop = false;
+        for (size_t j = 0; j < attackingVillage.troops.size(); j++) {
+            if (attackingVillage.troops[j].type == "Cavalry") {
+                selectedTroops.push_back(attackingVillage.troops[j]);
+                attackingVillage.troops.erase(attackingVillage.troops.begin() + j);
+                foundTroop = true;
+                break;
+            }
+        }
+        if (!foundTroop) {
+            std::cout << "You don't have any more Cavalry available.\n";
+            break;
+        }
+    }
+
+    // Sum the attack of the selected troops
+    int attackingVillageAttack = 0;
+    for (const Troop &troop: selectedTroops) {
+        attackingVillageAttack += troop.attack;
+    }
+
+    // Sum the attack of the troops in the defending army
+    int defendingVillageAttack = 0;
+    for (const Troop &troop: defendingVillage.troops) {
+        defendingVillageAttack += troop.attack;
+    }
+
+    // Kill troops from both armies until the total health of the killed troops is equal to the opposing army's attack
+    while (attackingVillageAttack > 0 && defendingVillageAttack > 0) {
+        // Choose a random troop from the attacking village to kill
+        int troopIndex = std::rand() % selectedTroops.size();
+        Troop &troop = selectedTroops[troopIndex];
+        attackingVillageAttack -= troop.health;
+        selectedTroops.erase(selectedTroops.begin() + troopIndex);
+
+        // Choose a random troop from the defending village to kill
+        troopIndex = std::rand() % defendingVillage.troops.size();
+        troop = defendingVillage.troops[troopIndex];
+        defendingVillageAttack -= troop.health;
+        defendingVillage.troops.erase(defendingVillage.troops.begin() + troopIndex);
+    }
+
+    // Check if the attack was successful
+    if (!selectedTroops.empty()) {
+        // Calculate the total attack of the surviving troops
+        int totalAttack = 0;
+        for (const Troop &troop: selectedTroops) {
+            totalAttack += troop.attack;
+        }
+
+        // Deal damage to the defending village
+        defendingVillage.health -= totalAttack;
+
+        // Calculate the carrying capacity of the surviving troops
+        int carryingCapacity = 0;
+        for (const Troop &troop: selectedTroops) {
+            carryingCapacity += troop.carryingCapacity;
+        }
+
+        // Reduce resources from the defending village
+        defendingVillage.resources.food -= carryingCapacity;
+        defendingVillage.resources.wood -= carryingCapacity;
+        defendingVillage.resources.gold -= carryingCapacity;
+
+        std::cout << "\nThe defending village took " << totalAttack << " damage and lost " << carryingCapacity << " resources." << std::endl;
+    }
+    else {
+        std::cout << "\n=======================================================================\n" << std::endl;
+        std::cout << "The attack was unsuccessful.\n" << std::endl;
+    }
+
+    // Output the health of the defending village after the attack
+    std::cout << "\nThe defending village's health is now: " << defendingVillage.health << std::endl;
+
+}
+
+//------------------------------------------------------------------------------------------------------------------
+
+void aiAttackVillage(Village &attacker, Village &defender) {
+    // Seed the random number generator with the current time
+    std::srand(std::time(nullptr));
+    // Generate random numbers for the number of troops the AI will use in the attack
+    int swordsmen = std::rand() % attacker.troops.size();
+    int archers = std::rand() % attacker.troops.size();
+    int cavalry = std::rand() % attacker.troops.size();
+
+    // Make sure the AI is using at least one troop in the attack
+    if (swordsmen == 0 && archers == 0 && cavalry == 0) {
+        // Choose a random troop type to use in the attack
+        int troopType = std::rand() % 3 + 1;
+        if (troopType == 1) {
+            swordsmen = 1;
+        } else if (troopType == 2) {
+            archers = 1;
+        } else {
+            cavalry = 1;
+        }
+    }
+
+    // Create a vector to store the selected troops
+    std::vector<Troop> selectedTroops;
+
+    // Select the specified number of troops
+    for (int i = 0; i < swordsmen; i++) {
+        // Find a Swordsmen troop to send
+        bool foundTroop = false;
+        for (size_t j = 0; j < attacker.troops.size(); j++) {
+            if (attacker.troops[j].type == "Swordsman") {
+                selectedTroops.push_back(attacker.troops[j]);
+                attacker.troops.erase(attacker.troops.begin() + j);
+                foundTroop = true;
+                break;
+            }
+        }
+        if (!foundTroop) {
+            break;
+        }
+    }
+    for (int i = 0; i < swordsmen; i++) {
+        // Find a Swordsmen troop to send
+        bool foundTroop = false;
+        for (size_t j = 0; j < attacker.troops.size(); j++) {
+            if (attacker.troops[j].type == "Swordsman") {
+                selectedTroops.push_back(attacker.troops[j]);
+                attacker.troops.erase(attacker.troops.begin() + j);
+                foundTroop = true;
+                break;
+            }
+        }
+        if (!foundTroop) {
+            break;
+        }
+    }
+
+    for (int i = 0; i < archers; i++) {
+        // Find an Archer troop to send
+        bool foundTroop = false;
+        for (size_t j = 0; j < attacker.troops.size(); j++) {
+            if (attacker.troops[j].type == "Archer") {
+                selectedTroops.push_back(attacker.troops[j]);
+                attacker.troops.erase(attacker.troops.begin() + j);
+                foundTroop = true;
+                break;
+            }
+        }
+        if (!foundTroop) {
+            break;
+        }
+    }
+
+    for (int i = 0; i < cavalry; i++) {
+        // Find a Cavalry troop to send
+        bool foundTroop = false;
+        for (size_t j = 0; j < attacker.troops.size(); j++) {
+            if (attacker.troops[j].type == "Cavalry") {
+                selectedTroops.push_back(attacker.troops[j]);
+                attacker.troops.erase(attacker.troops.begin() + j);
+                foundTroop = true;
+                break;
+            }
+        }
+        if (!foundTroop) {
+            break;
+        }
+    }
+
+    // Sum the attack of the selected troops
+    int attackingVillageAttack = 0;
+    for (const Troop &troop: selectedTroops) {
+        attackingVillageAttack += troop.attack;
+    }
+
+    // Sum the attack of the troops in the defending army
+    int defendingVillageAttack = 0;
+    for (const Troop &troop: defender.troops) {
+        defendingVillageAttack += troop.attack;
+    }
+
+    // Kill troops from both armies until the total health of the killed troops is equal to the opposing army's attack
+    while (attackingVillageAttack > 0 && defendingVillageAttack > 0) {
+        // Choose a random troop from the attacking village to kill
+        int troopIndex = std::rand() % selectedTroops.size();
+        Troop &troop = selectedTroops[troopIndex];
+        attackingVillageAttack -= troop.health;
+        selectedTroops.erase(selectedTroops.begin() + troopIndex);
+
+        // Choose a random troop from the defending village to kill
+        troopIndex = std::rand() % defender.troops.size();
+        troop = defender.troops[troopIndex];
+        defendingVillageAttack -= troop.health;
+        defender.troops.erase(defender.troops.begin() + troopIndex);
+    }
+
+    // Check if the attack was successful
+    if (!selectedTroops.empty()) {
+        // Calculate the total attack of the surviving troops
+        int totalAttack = 0;
+        for (const Troop &troop: selectedTroops) {
+            totalAttack += troop.attack;
+        }
+
+        // Deal damage to the defending village
+        defender.health -= totalAttack;
+
+        // Calculate the carrying capacity of the surviving troops
+        int carryingCapacity = 0;
+        for (const Troop &troop: selectedTroops) {
+            carryingCapacity += troop.carryingCapacity;
+        }
+
+        // Reduce resources from the defending village
+        defender.resources.food -= carryingCapacity;
+        defender.resources.wood -= carryingCapacity;
+        defender.resources.gold -= carryingCapacity;
+
+        std::cout << "\nThe defending village took " << totalAttack << " damage and lost " << carryingCapacity << " resources." << std::endl;
+    }
+    else {
+        std::cout << "\n=======================================================================\n" << std::endl;
+        std::cout << "The attack by the AI was unsuccessful.\n" << std::endl;
+    }
+
+    // Output the health of the defending village after the attack
+    std::cout << "\nThe defending village's health is now: " << defender.health << std::endl;
+}
 
 //------------------------------------------------------------------------------------------------------------------
 
 // Player action for turn Phase (menu)
-void doPlayerActions(Village& village) {
+void doPlayerActions(Village& village, std::vector<Village> &villages) {
     // Display the available resources and a list of actions the player can take
     std::cout << "\tREMAINING RESOURCES: wood - " << village.resources.wood << ", gold - " << village.resources.gold
               << ", food - " << village.resources.food << std::endl;
     std::cout << "\n=======================================================================\n" << std::endl;
-    std::cout << "ACTIONS: \n1. Build/upgrade buildings\n2. Train troops\n3. Attack another village\n4. Surrender\n5. Pass the turn\n\nEnter the number of the action you want to take: ";
+    std::cout
+            << "ACTIONS: \n1. Build/upgrade buildings\n2. Train troops\n3. Attack another village\n4. Surrender\n5. Pass the turn\n\nEnter the number of the action you want to take: ";
     // Read in the player's action
     int action;
     std::cin >> action;
 
     std::cout << "\n=======================================================================\n" << std::endl;
 
+    // TODO CHECK FOR TROOP
+    /*// Check if the player has any troops to attack with
+    bool hasTroops = false;
+    for (const Troop &troop: village.troops) {
+        if ((troop.type == "Swordsman") || (troop.type == "Archer") || (troop.type == "Cavalry")) {
+            hasTroops = true;
+            break;
+        }
+    }
+
+    // If the player doesn't have any troops, and they try to choose action 3, ask them to choose a different action
+    if (action == 3 && !hasTroops) {
+        std::cout << "You don't have any troops to attack with. Please choose a different action.\n" << std::endl;
+        doPlayerActions(village, villages);
+        return;
+    }*/
+
     // Perform the selected action
     if (action == 1) {
         while (true) {
             std::cout << "Buildings: " << std::endl;
             int i = 1;
-            for (auto& building : village.buildings) {
+            for (auto &building: village.buildings) {
                 std::cout << i << ". " << building.name << " (level " << building.level << ")" << std::endl;
+                // Display Cost to Upgrade
+                std::cout << "Cost to upgrade: " << building.costToUpgrade.wood << " Wood, "
+                          << building.costToUpgrade.gold << " Gold, " << building.costToUpgrade.food << " Food\n"
+                          << std::endl;
                 i++;
             }
             std::cout << "Enter the number of the building you want to upgrade (or 0 to cancel): ";
@@ -361,32 +667,38 @@ void doPlayerActions(Village& village) {
             std::cin >> buildingIndex;
             if (buildingIndex == 0) {
                 // Cancel the action
-                doPlayerActions(village);
+                doPlayerActions(village, villages);
             } else if (buildingIndex > 0 && buildingIndex <= village.buildings.size()) {
                 // Valid building selected
-                Building& building = village.buildings[buildingIndex-1];
+                Building &building = village.buildings[buildingIndex - 1];
                 // Upgrade the building
                 if (upgradeBuilding(village, building)) {
-                    std::cout << "\n=======================================================================\n" << std::endl;
-                    std::cout << "\t\t "<< building.name << " upgraded to level " << building.level << "!" << std::endl;
-                    std::cout << "\n\tREMAINING RESOURCES: wood = " << village.resources.wood << ", gold - " << village.resources.gold
+                    std::cout << "\n=======================================================================\n"
+                              << std::endl;
+                    std::cout << "\t\t " << building.name << " upgraded to level " << building.level << "!"
+                              << std::endl;
+                    std::cout << "\n\tREMAINING RESOURCES: wood = " << village.resources.wood << ", gold - "
+                              << village.resources.gold
                               << ", food - " << village.resources.food << std::endl;
                     break;
                 } else {
-                    std::cout << "\n=======================================================================\n" << std::endl;
-                    std::cout << "You don't have enough resources to upgrade this building. Want to choose another?" << std::endl;
-                    std::cout << "\n=======================================================================\n" << std::endl;
+                    std::cout << "\n=======================================================================\n"
+                              << std::endl;
+                    std::cout << "You don't have enough resources to upgrade this building. Want to choose another?"
+                              << std::endl;
+                    std::cout << "\n=======================================================================\n"
+                              << std::endl;
                 }
             }
         }
-
     } else if (action == 2) {
         // Code for training troops goes here
         while (true) {
             std::cout << "Troops: " << std::endl;
             int i = 1;
-            for (auto& troop : village.troops) {
-                std::cout << i << ". " << troop.type << " (" << troop.trainingCost << " from all Resources)"<< std::endl;
+            for (auto &troop: village.troops) {
+                std::cout << i << ". " << troop.type << " (" << troop.trainingCost << " from all Resources)"
+                          << std::endl;
                 i++;
             }
             std::cout << "\nEnter the number of the troop you want to train (or 0 to cancel): ";
@@ -394,40 +706,55 @@ void doPlayerActions(Village& village) {
             std::cin >> troopIndex;
             if (troopIndex == 0) {
                 // Cancel the training
-                doPlayerActions(village);
+                doPlayerActions(village, villages);
             } else if (troopIndex > 0 && troopIndex <= village.troops.size()) {
                 // Valid troop selected
-                Troop& troop = village.troops[troopIndex-1];
+                Troop &troop = village.troops[troopIndex - 1];
+
+                // Determine how many troops to generate based on building levels
+                int numTroopsToGenerate = 1;  // default to 1 troop
+                for (auto &building: village.buildings) {
+                    if (building.name == "Barracks" && troop.type == "Swordsman") {
+                        numTroopsToGenerate = building.level;  // use the level of the Barracks building to determine how many troops to generate
+                    } else if (building.name == "Archery Range" && troop.type == "Archer") {
+                        numTroopsToGenerate = building.level;  // use the level of the Archery Range building to determine how many troops to generate
+                    } else if (building.name == "Stables" && troop.type == "Cavalry") {
+                        numTroopsToGenerate = building.level;  // use the level of the Stables building to determine how many troops to generate
+                    }
+                }
+
                 // Check if the player has enough resources to train the troop
-                if (village.resources.wood >= troop.trainingCost && village.resources.gold >= troop.trainingCost
-                    && village.resources.food >= troop.trainingCost) {
-                    // Train the troop
-                    village.resources.wood -= troop.trainingCost;
-                    village.resources.gold -= troop.trainingCost;
-                    village.resources.food -= troop.trainingCost;
-                    std::cout << "\n=======================================================================\n" << std::endl;
-                    std::cout << "\t\t\t"<< troop.type << " trained!" << std::endl;
+                if (village.resources.wood >= troop.trainingCost * numTroopsToGenerate
+                    && village.resources.gold >= troop.trainingCost * numTroopsToGenerate
+                    && village.resources.food >= troop.trainingCost * numTroopsToGenerate) {
+                    // Train the troops
+                    village.resources.wood -= troop.trainingCost * numTroopsToGenerate;
+                    village.resources.gold -= troop.trainingCost * numTroopsToGenerate;
+                    village.resources.food -= troop.trainingCost * numTroopsToGenerate;
+                    std::cout << "\n=======================================================================\n"
+                              << std::endl;
+                    std::cout << "\t\t\t" << numTroopsToGenerate << " " << troop.type << " trained!" << std::endl;
 
+                    if (troop.type == "Swordsman") {
+                        swordsmanCount += numTroopsToGenerate;
+                    } else if (troop.type == "Archer") {
+                        archerCount += numTroopsToGenerate;
+                    } else if (troop.type == "Cavalry") {
+                        cavalryCount += numTroopsToGenerate;
+                    }
 
-                        if (troop.type == "Swordsman") {
-                            swordsmanCount++;
-                        } else if (troop.type == "Archer") {
-                            archerCount++;
-                        } else if (troop.type == "Cavalry") {
-                            cavalryCount++;
-                        }
-
-
-                    std::cout << "\n=======================================================================\n" << std::endl;
+                    std::cout << "\n=======================================================================\n"<< std::endl;
                     std::cout << "Number of Swordsmen: " << swordsmanCount << std::endl;
                     std::cout << "Number of Archers: " << archerCount << std::endl;
                     std::cout << "Number of Cavalry: " << cavalryCount << std::endl;
 
                     break;
                 } else {
-                    std::cout << "\n=======================================================================\n" << std::endl;
+                    std::cout << "\n=======================================================================\n"
+                              << std::endl;
                     std::cout << "You don't have enough resources to train this troop." << std::endl;
-                    std::cout << "\n=======================================================================\n" << std::endl;
+                    std::cout << "\n=======================================================================\n"
+                              << std::endl;
                 }
             } else {
                 // Invalid troop selected
@@ -435,11 +762,52 @@ void doPlayerActions(Village& village) {
                 std::cout << "Invalid troop selected. Please try again." << std::endl;
             }
         }
-        std::cout << "\n\tREMAINING RESOURCES: Wood - " << village.resources.wood << ", Gold - " << village.resources.gold
+        std::cout << "\n\tREMAINING RESOURCES: Wood - " << village.resources.wood << ", Gold - "
+                  << village.resources.gold
                   << ", Food - " << village.resources.food << std::endl;
 
     } else if (action == 3) {
-        // TODO: Code for attacking another village goes here
+
+        // Output the list of villages and whether they belong to the player or an AI
+        for (int i = 0; i < villages.size(); i++) {
+            const Village &village = villages[i];
+            std::cout << i << ": " << (village.isPlayer ? "Player" : "AI") << std::endl;
+        }
+
+        // Choose the village to attack
+        int villageIndex;
+        std::cout << "Enter the index of the village you want to attack: ";
+        std::cin >> villageIndex;
+
+        // TODO fix infinite loop
+        // Wrap the checks in a loop
+        for (;;) {
+            // Make sure the index is valid
+            if (villageIndex < 0 || villageIndex >= villages.size() || villageIndex == 0) {
+                std::cout << "Error: Invalid village index" << std::endl;
+                continue;
+            }
+
+            Village &defendingVillage = villages[villageIndex];
+
+            // Make sure the attacking village has at least one troop
+            if (village.troops.empty()) {
+                std::cout << "Error: You don't have any troops to attack with" << std::endl;
+                continue;
+            }
+
+            // Make sure the defending village is not the player's own village
+            if (defendingVillage.isPlayer) {
+                std::cout << "Error: You can't attack your own village" << std::endl;
+                continue;
+            }
+
+            // Call the attackVillage function
+            attackVillage(village, defendingVillage);
+            // Exit the loop if no errors were encountered
+            break;
+        }
+
     } else if (action == 4) {
         // Surrender
         // Set the village's health to 0
@@ -447,7 +815,7 @@ void doPlayerActions(Village& village) {
         std::cout << "\n=======================================================================\n" << std::endl;
         std::cout << "\tYOU HAVE SURRENDERED! YOUR VILLAGE HAS BEEN DESTROYED!" << std::endl;
         std::cout << "\n=======================================================================\n" << std::endl;
-        return;
+        exit(0);  // exit the game
     } else if (action == 5) {
         // Code for passing the turn goes here
         std::cout << "\n=======================================================================\n" << std::endl;
@@ -458,11 +826,12 @@ void doPlayerActions(Village& village) {
         std::cout << "\n=======================================================================\n" << std::endl;
         std::cout << "\t\t  Invalid action. Please try again." << std::endl;
         std::cout << "\n=======================================================================\n" << std::endl;
-        doPlayerActions(village);
-        }
+        doPlayerActions(village, villages);
+    }
 }
 
 //------------------------------------------------------------------------------------------------------------------
+
 void doAIActions(Village& village) {
     // Seed the random number generator with the current time
     std::srand(std::time(nullptr));
@@ -472,7 +841,7 @@ void doAIActions(Village& village) {
         // Generate a random number between 1 and 4
         int AI_action = std::rand() % 4 + 1;
         std::cout << "\n=======================================================================\n" << std::endl;
-        std::cout << "\n\t\tAI chose action: " << AI_action << std::endl;
+        std::cout << "\n\t\t\tAI chose action: " << AI_action << std::endl;
 
         // Perform the selected action
         if (AI_action == 1) {
@@ -484,7 +853,7 @@ void doAIActions(Village& village) {
                 if (upgradeBuilding(village, building)) {
                     std::cout << "\n=======================================================================\n"
                               << std::endl;
-                    std::cout << "\n\tAI upgraded " << building.name << " to level " << building.level << "!"
+                    std::cout << "\n\t\tAI upgraded " << building.name << " to level " << building.level << "!"
                               << std::endl;
                     actionSuccessful = true;
                 }
@@ -507,7 +876,7 @@ void doAIActions(Village& village) {
                         village.resources.food -= troop.trainingCost;
                         std::cout << "\n=======================================================================\n"
                                   << std::endl;
-                        std::cout << "\n\t\tAI trained " << troop.type << "!" << std::endl;
+                        std::cout << "\n\t\t\tAI trained " << troop.type << "!" << std::endl;
                         enoughResources = true;
                         if (troop.type == "Swordsman") {
                             AI_swordsmanCount++;
@@ -555,8 +924,10 @@ void doAIActions(Village& village) {
                 }
             }
         } else if (AI_action == 3) {
+
             // TODO: Code for attacking another village goes here
-            std::cout << "\n\t\tACTION 3 NOT YET MADE" << std::endl;
+            aiAttackVillage(village, village);
+
         } else if (AI_action == 4) {
             // Check if the AI has enough resources to perform any of the other actions
             bool actionSuccessful = false;
@@ -593,54 +964,18 @@ void doAIActions(Village& village) {
 void takePlayerTurn(Village &village, std::vector<Village> &villages) {
     // Player's turn
     std::cout << "\n=======================================================================\n"<< std::endl;
-    std::cout << "\t\t\tPlayer's turn..." << std::endl;
-    bool endTurn = false;
-    while (!endTurn) {
-        // Player turn
-        doPlayerActions(village);
-        // Generate resources for each village
-        for (auto &village: villages) {
-            generateResources(village);
-        }
-        // Prompt the player to end their turn
-        std::cout << "\n\tEnter Q to end your turn or any other key to continue: ";
-        char input;
-        std::cin >> input;
-        std::cout << "\n=======================================================================\n"<< std::endl;
-        if (input == 'Q' || input == 'q') {
-            endTurn = true;
-        }
-    }
-}
-
-void takeAITurn(Village &village, std::vector<Village> &villages) {
-    // AI's turn
-    std::cout << "\n=======================================================================\n"<< std::endl;
-    std::cout << "\t\t\t AI's turn..." << std::endl;
-    std::cout << "\n=======================================================================\n"<< std::endl;
-    doAIActions(village);
-    // Generate resources for AI village
-    for (auto &village: villages) {
-        generateResources(village);
-    }
-}
-
-
-//------------------------------------------------------------------------------------------------------------------
-
-void takePlayerTurn(Village &village) {
-    // Player's turn
-    std::cout << "\n=======================================================================\n"<< std::endl;
     std::cout << "\t\t\tPlayer's turn....\n" << std::endl;
-    doPlayerActions(village);
+    doPlayerActions(village, villages);
 }
 
 void takeAITurn(Village &village) {
     // AI's turn
-    std::cout << "\n=======================================================================\n"<< std::endl;
-    std::cout << "\t\t\t AI's turn...." << std::endl;
-    std::cout << "\n=======================================================================\n"<< std::endl;
-    doAIActions(village);
+    if (village.health > 0) {  // only perform actions if the village is still standing
+        std::cout << "\n=======================================================================\n"<< std::endl;
+        std::cout << "\t\t\t   AI's turn...." << std::endl;
+        std::cout << "\n=======================================================================\n"<< std::endl;
+        doAIActions(village);
+    }
 }
 
 //------------------------------------------------------------------------------------------------------------------
@@ -725,10 +1060,11 @@ int main() {
     std::vector<Village> newVillages = generateVillages(numPlayers, numAIs);
 
     // Output the map with the village locations
-    //printMap(map, villages);
+    printMap(map, villages);
 
     // Output information about each village
     for (const Village &village: newVillages) {
+        std::cout << "\n" << std::endl;
         std::cout << "Village: ";
         if (village.isPlayer) {
             std::cout << "Player's village" << std::endl;
@@ -757,17 +1093,17 @@ int main() {
     while (!gameOver) {
         // Start a new round
         std::cout << "\n=======================================================================\n" << std::endl;
-        std::cout << "\t\t\tSTARTING NEW ROUND..." << std::endl;
+        std::cout << "\t\t\t    ROUND ENDED." << std::endl;
+        std::cout << "\n\t\t\tSTARTING NEW ROUND..." << std::endl;
         std::cout << "\n=======================================================================\n" << std::endl;
 
         // Turn phase
         std::cout << "\t\t\t    TURN PHASE..." << std::endl;
-        std::cout << "\n=======================================================================\n" << std::endl;
         for (auto &village: villages) {
             if (village.health > 0) { // Only take a turn if the village is still standing
                 if (village.isPlayer) {
                     // Player's turn
-                    takePlayerTurn(village);
+                    takePlayerTurn(village, villages);
                 } else {
                     // AI's turn
                     takeAITurn(village);
