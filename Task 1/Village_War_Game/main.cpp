@@ -1,7 +1,8 @@
 #include <iostream>
 #include <vector>
-#include <cstdlib> // for std::rand
-#include <ctime> // for std::time
+#include <cstdlib>
+#include <ctime>
+#include <random>
 
 #define MAP_HEIGHT 50
 #define MAP_WIDTH 50
@@ -192,11 +193,11 @@ std::vector<Building> generateBuildings(Village &village) {
         } else if (i == 1) {
             building.name = "Archery Range";
             building.troopGenerationCost = 40;
-            building.costToUpgrade = {160, 80, 40};
+            building.costToUpgrade = {160, 80, 50};
         } else {
             building.name = "Stables";
             building.troopGenerationCost = 60;
-            building.costToUpgrade = {120, 60, 30};
+            building.costToUpgrade = {220, 100, 60};
         }
         buildings.push_back(building);
     }
@@ -216,16 +217,16 @@ bool upgradeBuilding(Village &village, Building &building) {
         village.resources.food -= building.costToUpgrade.food;
         // Increase the building's level
         building.level++;
-        // Update the resource generation rate and troop generation cost/training time based on the new level
+        // Update the resource generation rate and troop generation cost based on the new level
         if (building.type == "ResourceGenerator") {
             building.resourceGenerationRate += 10;
         } else {
             building.troopGenerationCost += 20;
         }
         // Increase the cost to upgrade the building
-        building.costToUpgrade.wood += 20;
-        building.costToUpgrade.gold += 10;
-        building.costToUpgrade.food += 5;
+        building.costToUpgrade.wood += 100;
+        building.costToUpgrade.gold += 90;
+        building.costToUpgrade.food += 80;
         return true;
     }
     return false;
@@ -239,8 +240,8 @@ std::vector<Village> generateVillages(int numPlayers, int numAIs) {
     // Generate the player's village
     Village playerVillage;
     playerVillage.isPlayer = true;
-    playerVillage.x = rand() % MAP_WIDTH;  // Generate a random x coordinate between 0 and MAP_WIDTH-1
-    playerVillage.y = rand() % MAP_HEIGHT; // Generate a random y coordinate between 0 and MAP_HEIGHT-1
+    playerVillage.x = rand() % MAP_WIDTH;  // Generate a random x coordinate between 0 and MAP_WIDTH
+    playerVillage.y = rand() % MAP_HEIGHT; // Generate a random y coordinate between 0 and MAP_HEIGHT
     playerVillage.resources = {100, 100, 100};
     playerVillage.health = 100;
     playerVillage.buildings = generateBuildings(playerVillage);
@@ -305,6 +306,7 @@ bool winGame(std::vector<Village> &villages) {
     if (allAIVillagesLost) {
         std::cout << "\n=======================================================================\n" << std::endl;
         std::cout << "\t\tALL AI VILLAGES DESTROYED!\n\t\t\tYOU WIN!." << std::endl;
+        exit(0);
         return true;
     }
 
@@ -469,17 +471,26 @@ void attackVillage(Village &attackingVillage, Village &defendingVillage) {
 //------------------------------------------------------------------------------------------------------------------
 
 void aiAttackVillage(Village &attacker, Village &defender) {
-    // Seed the random number generator with the current time
-    std::srand(std::time(nullptr));
+
+    //TODO FIX INFINITE LOOP
+
+    // Seed a local random number generator with a random seed
+    std::random_device rd;
+    std::mt19937 rng(rd());
+
+    // Generate a random number in the range [0, attacker.troops.size() - 1]
+    std::uniform_int_distribution<int> dist(0, attacker.troops.size() - 1);
+
     // Generate random numbers for the number of troops the AI will use in the attack
-    int swordsmen = std::rand() % attacker.troops.size();
-    int archers = std::rand() % attacker.troops.size();
-    int cavalry = std::rand() % attacker.troops.size();
+    int swordsmen = dist(rng);
+    int archers = dist(rng);
+    int cavalry = dist(rng);
 
     // Make sure the AI is using at least one troop in the attack
     if (swordsmen == 0 && archers == 0 && cavalry == 0) {
         // Choose a random troop type to use in the attack
-        int troopType = std::rand() % 3 + 1;
+        std::uniform_int_distribution<int> dist(1, 3);
+        int troopType = dist(rng);
         if (troopType == 1) {
             swordsmen = 1;
         } else if (troopType == 2) {
@@ -493,21 +504,6 @@ void aiAttackVillage(Village &attacker, Village &defender) {
     std::vector<Troop> selectedTroops;
 
     // Select the specified number of troops
-    for (int i = 0; i < swordsmen; i++) {
-        // Find a Swordsmen troop to send
-        bool foundTroop = false;
-        for (size_t j = 0; j < attacker.troops.size(); j++) {
-            if (attacker.troops[j].type == "Swordsman") {
-                selectedTroops.push_back(attacker.troops[j]);
-                attacker.troops.erase(attacker.troops.begin() + j);
-                foundTroop = true;
-                break;
-            }
-        }
-        if (!foundTroop) {
-            break;
-        }
-    }
     for (int i = 0; i < swordsmen; i++) {
         // Find a Swordsmen troop to send
         bool foundTroop = false;
@@ -569,19 +565,20 @@ void aiAttackVillage(Village &attacker, Village &defender) {
     }
 
     // Kill troops from both armies until the total health of the killed troops is equal to the opposing army's attack
-    while (attackingVillageAttack > 0 && defendingVillageAttack > 0) {
-        // Choose a random troop from the attacking village to kill
-        int troopIndex = std::rand() % selectedTroops.size();
-        Troop &troop = selectedTroops[troopIndex];
-        attackingVillageAttack -= troop.health;
-        selectedTroops.erase(selectedTroops.begin() + troopIndex);
-
+    while (!defender.troops.empty() && attackingVillageAttack >= defendingVillageAttack) {
         // Choose a random troop from the defending village to kill
-        troopIndex = std::rand() % defender.troops.size();
-        troop = defender.troops[troopIndex];
-        defendingVillageAttack -= troop.health;
-        defender.troops.erase(defender.troops.begin() + troopIndex);
+        int index = std::rand() % defender.troops.size();
+        Troop killedTroop = defender.troops[index];
+        defendingVillageAttack -= killedTroop.health;
+        defender.troops.erase(defender.troops.begin() + index);
+
+        // Choose a random troop from the attacking village to kill
+        index = std::rand() % selectedTroops.size();
+        killedTroop = selectedTroops[index];
+        attackingVillageAttack -= killedTroop.health;
+        selectedTroops.erase(selectedTroops.begin() + index);
     }
+
 
     // Check if the attack was successful
     if (!selectedTroops.empty()) {
@@ -614,6 +611,7 @@ void aiAttackVillage(Village &attacker, Village &defender) {
 
     // Output the health of the defending village after the attack
     std::cout << "\nThe defending village's health is now: " << defender.health << std::endl;
+
 }
 
 //------------------------------------------------------------------------------------------------------------------
@@ -632,14 +630,10 @@ void doPlayerActions(Village& village, std::vector<Village> &villages) {
 
     std::cout << "\n=======================================================================\n" << std::endl;
 
-    // TODO CHECK FOR TROOP
-    /*// Check if the player has any troops to attack with
+    // Check if the player has any troops to attack with
     bool hasTroops = false;
-    for (const Troop &troop: village.troops) {
-        if ((troop.type == "Swordsman") || (troop.type == "Archer") || (troop.type == "Cavalry")) {
-            hasTroops = true;
-            break;
-        }
+    if (swordsmanCount > 0 || archerCount > 0 || cavalryCount > 0) {
+        hasTroops = true;
     }
 
     // If the player doesn't have any troops, and they try to choose action 3, ask them to choose a different action
@@ -647,7 +641,7 @@ void doPlayerActions(Village& village, std::vector<Village> &villages) {
         std::cout << "You don't have any troops to attack with. Please choose a different action.\n" << std::endl;
         doPlayerActions(village, villages);
         return;
-    }*/
+    }
 
     // Perform the selected action
     if (action == 1) {
@@ -697,8 +691,15 @@ void doPlayerActions(Village& village, std::vector<Village> &villages) {
             std::cout << "Troops: " << std::endl;
             int i = 1;
             for (auto &troop: village.troops) {
-                std::cout << i << ". " << troop.type << " (" << troop.trainingCost << " from all Resources)"
-                          << std::endl;
+                int cost = troop.trainingCost;  // Initialize cost to the base training cost of the troop
+                for (auto &building: village.buildings) {
+                    // Check if the building is a training building
+                    if (building.name == "Barracks" || building.name == "Archery Range" || building.name == "Stables") {
+                        // Modify the cost of training the troop based on the level of the building
+                        cost *= building.level;
+                    }
+                }
+                std::cout << i << ". " << troop.type << " (" << cost << " from all Resources)" << std::endl;
                 i++;
             }
             std::cout << "\nEnter the number of the troop you want to train (or 0 to cancel): ";
@@ -781,6 +782,7 @@ void doPlayerActions(Village& village, std::vector<Village> &villages) {
 
         // TODO fix infinite loop
         // Wrap the checks in a loop
+        bool validInput = false;
         for (;;) {
             // Make sure the index is valid
             if (villageIndex < 0 || villageIndex >= villages.size() || villageIndex == 0) {
@@ -802,10 +804,16 @@ void doPlayerActions(Village& village, std::vector<Village> &villages) {
                 continue;
             }
 
+            // Set validInput to true if no errors were encountered
+            validInput = true;
+
             // Call the attackVillage function
             attackVillage(village, defendingVillage);
-            // Exit the loop if no errors were encountered
-            break;
+
+            // Exit the loop if validInput is true
+            if (validInput) {
+                break;
+            }
         }
 
     } else if (action == 4) {
@@ -840,8 +848,20 @@ void doAIActions(Village& village) {
     while (!actionSuccessful) {
         // Generate a random number between 1 and 4
         int AI_action = std::rand() % 4 + 1;
-        std::cout << "\n=======================================================================\n" << std::endl;
+        std::cout << "\n=======================================================================" << std::endl;
         std::cout << "\n\t\t\tAI chose action: " << AI_action << std::endl;
+
+        // Check if the AI has any troops to attack with
+        bool hasTroops = false;
+        if (AI_swordsmanCount > 0 || AI_archerCount > 0 || AI_cavalryCount > 0) {
+            hasTroops = true;
+        }
+
+        // If the player doesn't have any troops, and they try to choose action 3, ask them to choose a different action
+        if (AI_action == 3 && !hasTroops) {
+            doAIActions(village);
+            return;
+        }
 
         // Perform the selected action
         if (AI_action == 1) {
@@ -859,24 +879,40 @@ void doAIActions(Village& village) {
                 }
             }
         } else if (AI_action == 2) {
-            // Code for training troops goes here
-            if (!village.troops.empty()) {
-                bool enoughResources = false;
-                while (!enoughResources) {
-                    // Choose a random troop to train
-                    int troopIndex = std::rand() % village.troops.size();
-                    Troop &troop = village.troops[troopIndex];
-                    // Check if the AI has enough resources to train the troop
-                    if (village.resources.wood >= troop.trainingCost &&
-                        village.resources.gold >= troop.trainingCost
-                        && village.resources.food >= troop.trainingCost) {
-                        // Train the troop
-                        village.resources.wood -= troop.trainingCost;
-                        village.resources.gold -= troop.trainingCost;
-                        village.resources.food -= troop.trainingCost;
-                        std::cout << "\n=======================================================================\n"
-                                  << std::endl;
-                        std::cout << "\n\t\t\tAI trained " << troop.type << "!" << std::endl;
+
+                // Code for training troops
+                if (!village.troops.empty()) {
+                    bool enoughResources = false;
+                    while (!enoughResources) {
+                        // Choose a random troop to train
+                        int troopIndex = std::rand() % village.troops.size();
+                        Troop &troop = village.troops[troopIndex];
+                        // Check if the AI has enough resources to train the troop
+                        if (village.resources.wood >= troop.trainingCost &&
+                            village.resources.gold >= troop.trainingCost
+                            && village.resources.food >= troop.trainingCost) {
+                            // Train the troop
+                            village.resources.wood -= troop.trainingCost;
+                            village.resources.gold -= troop.trainingCost;
+                            village.resources.food -= troop.trainingCost;
+
+                            // Determine how many troops to generate based on building levels
+                            int AInumTroopsToGenerate = 1;  // default to 1 troop
+                            for (auto &building: village.buildings) {
+                                if (building.name == "Barracks" && troop.type == "Swordsman") {
+                                    AInumTroopsToGenerate = building.level;  // use the level of the Barracks building to determine how many troops to generate
+                                    break;  // no need to check other buildings, we found the right one
+                                } else if (building.name == "Archery Range" && troop.type == "Archer") {
+                                    AInumTroopsToGenerate = building.level;  // use the level of the Archery Range building to determine how many troops to generate
+                                    break;  // no need to check other buildings, we found the right one
+                                } else if (building.name == "Stables" && troop.type == "Cavalry") {
+                                    AInumTroopsToGenerate = building.level;  // use the level of the Stables building to determine how many troops to generate
+                                    break;  // no need to check other buildings, we found the right one
+                                }
+                            }
+
+                            std::cout << "\n=======================================================================\n"<< std::endl;
+                            std::cout << "\n\t\t\tAI trained " << troop.type << "!" << std::endl;
                         enoughResources = true;
                         if (troop.type == "Swordsman") {
                             AI_swordsmanCount++;
@@ -925,8 +961,9 @@ void doAIActions(Village& village) {
             }
         } else if (AI_action == 3) {
 
-            // TODO: Code for attacking another village goes here
             aiAttackVillage(village, village);
+            actionSuccessful = true;
+            break;
 
         } else if (AI_action == 4) {
             // Check if the AI has enough resources to perform any of the other actions
