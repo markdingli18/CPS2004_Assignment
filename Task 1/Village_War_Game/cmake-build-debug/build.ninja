@@ -55,6 +55,54 @@ build CMakeFiles/Village_War_Game.dir/main.cpp.obj: CXX_COMPILER__Village_War_Ga
   OBJECT_DIR = CMakeFiles\Village_War_Game.dir
   OBJECT_FILE_DIR = CMakeFiles\Village_War_Game.dir
 
+build CMakeFiles/Village_War_Game.dir/welcome_message.cpp.obj: CXX_COMPILER__Village_War_Game_Debug C$:/Users/markd/C++/Village_War_Game/welcome_message.cpp || cmake_object_order_depends_target_Village_War_Game
+  DEP_FILE = CMakeFiles\Village_War_Game.dir\welcome_message.cpp.obj.d
+  FLAGS = -g -std=gnu++14
+  OBJECT_DIR = CMakeFiles\Village_War_Game.dir
+  OBJECT_FILE_DIR = CMakeFiles\Village_War_Game.dir
+
+build CMakeFiles/Village_War_Game.dir/map.cpp.obj: CXX_COMPILER__Village_War_Game_Debug C$:/Users/markd/C++/Village_War_Game/map.cpp || cmake_object_order_depends_target_Village_War_Game
+  DEP_FILE = CMakeFiles\Village_War_Game.dir\map.cpp.obj.d
+  FLAGS = -g -std=gnu++14
+  OBJECT_DIR = CMakeFiles\Village_War_Game.dir
+  OBJECT_FILE_DIR = CMakeFiles\Village_War_Game.dir
+
+build CMakeFiles/Village_War_Game.dir/troops.cpp.obj: CXX_COMPILER__Village_War_Game_Debug C$:/Users/markd/C++/Village_War_Game/troops.cpp || cmake_object_order_depends_target_Village_War_Game
+  DEP_FILE = CMakeFiles\Village_War_Game.dir\troops.cpp.obj.d
+  FLAGS = -g -std=gnu++14
+  OBJECT_DIR = CMakeFiles\Village_War_Game.dir
+  OBJECT_FILE_DIR = CMakeFiles\Village_War_Game.dir
+
+build CMakeFiles/Village_War_Game.dir/buildings.cpp.obj: CXX_COMPILER__Village_War_Game_Debug C$:/Users/markd/C++/Village_War_Game/buildings.cpp || cmake_object_order_depends_target_Village_War_Game
+  DEP_FILE = CMakeFiles\Village_War_Game.dir\buildings.cpp.obj.d
+  FLAGS = -g -std=gnu++14
+  OBJECT_DIR = CMakeFiles\Village_War_Game.dir
+  OBJECT_FILE_DIR = CMakeFiles\Village_War_Game.dir
+
+build CMakeFiles/Village_War_Game.dir/villages.cpp.obj: CXX_COMPILER__Village_War_Game_Debug C$:/Users/markd/C++/Village_War_Game/villages.cpp || cmake_object_order_depends_target_Village_War_Game
+  DEP_FILE = CMakeFiles\Village_War_Game.dir\villages.cpp.obj.d
+  FLAGS = -g -std=gnu++14
+  OBJECT_DIR = CMakeFiles\Village_War_Game.dir
+  OBJECT_FILE_DIR = CMakeFiles\Village_War_Game.dir
+
+build CMakeFiles/Village_War_Game.dir/resources.cpp.obj: CXX_COMPILER__Village_War_Game_Debug C$:/Users/markd/C++/Village_War_Game/resources.cpp || cmake_object_order_depends_target_Village_War_Game
+  DEP_FILE = CMakeFiles\Village_War_Game.dir\resources.cpp.obj.d
+  FLAGS = -g -std=gnu++14
+  OBJECT_DIR = CMakeFiles\Village_War_Game.dir
+  OBJECT_FILE_DIR = CMakeFiles\Village_War_Game.dir
+
+build CMakeFiles/Village_War_Game.dir/stop_game.cpp.obj: CXX_COMPILER__Village_War_Game_Debug C$:/Users/markd/C++/Village_War_Game/stop_game.cpp || cmake_object_order_depends_target_Village_War_Game
+  DEP_FILE = CMakeFiles\Village_War_Game.dir\stop_game.cpp.obj.d
+  FLAGS = -g -std=gnu++14
+  OBJECT_DIR = CMakeFiles\Village_War_Game.dir
+  OBJECT_FILE_DIR = CMakeFiles\Village_War_Game.dir
+
+build CMakeFiles/Village_War_Game.dir/take_turn.cpp.obj: CXX_COMPILER__Village_War_Game_Debug C$:/Users/markd/C++/Village_War_Game/take_turn.cpp || cmake_object_order_depends_target_Village_War_Game
+  DEP_FILE = CMakeFiles\Village_War_Game.dir\take_turn.cpp.obj.d
+  FLAGS = -g -std=gnu++14
+  OBJECT_DIR = CMakeFiles\Village_War_Game.dir
+  OBJECT_FILE_DIR = CMakeFiles\Village_War_Game.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target Village_War_Game
@@ -63,7 +111,7 @@ build CMakeFiles/Village_War_Game.dir/main.cpp.obj: CXX_COMPILER__Village_War_Ga
 #############################################
 # Link the executable Village_War_Game.exe
 
-build Village_War_Game.exe: CXX_EXECUTABLE_LINKER__Village_War_Game_Debug CMakeFiles/Village_War_Game.dir/main.cpp.obj
+build Village_War_Game.exe: CXX_EXECUTABLE_LINKER__Village_War_Game_Debug CMakeFiles/Village_War_Game.dir/main.cpp.obj CMakeFiles/Village_War_Game.dir/welcome_message.cpp.obj CMakeFiles/Village_War_Game.dir/map.cpp.obj CMakeFiles/Village_War_Game.dir/troops.cpp.obj CMakeFiles/Village_War_Game.dir/buildings.cpp.obj CMakeFiles/Village_War_Game.dir/villages.cpp.obj CMakeFiles/Village_War_Game.dir/resources.cpp.obj CMakeFiles/Village_War_Game.dir/stop_game.cpp.obj CMakeFiles/Village_War_Game.dir/take_turn.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\Village_War_Game.dir
