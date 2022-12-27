@@ -1,21 +1,22 @@
 #include "header.h"
 
 // Global Variables
-short numPlayers;
-short numAIs;
+short numPlayers; // Number of players
+short numAIs; // Number of artificial intelligence players
 
 int main() {
 
-    // Welcome Message
+    // Output welcome Message
     welcome_message();
 
-    //------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
 
     // Asking for user input and error checking
     while (true) {
         std::cout << "Enter the number of players (at least one): ";
         std::cin >> numPlayers;
         std::cout << "\n=======================================================================\n" << std::endl;
+
 
         // Check if the number of players is valid (at least one player)
         if (numPlayers > 0) {
@@ -31,15 +32,19 @@ int main() {
         std::cout << "Enter the number of AIs (zero or more): ";
         std::cin >> numAIs;
         std::cout << "\n=======================================================================\n" << std::endl;
+        // Check if the number of AIs is valid (zero or more)
         if (numAIs >= 0) {
             break;
         }
+        // Display an error message if the number of AIs is invalid
         std::cout << "Error: Invalid number of AIs" << std::endl;
         std::cout << "\n=======================================================================\n" << std::endl;
     }
 
+    // Create a village object
     Village village;
 
+    // Generate the player and AI villages
     std::vector<Village> villages = generateVillages(numPlayers, numAIs);
 
     // Print the coordinates of each village
@@ -49,9 +54,10 @@ int main() {
     }
     std::cout << "\n=======================================================================\n" << std::endl;
 
-    //------------------------------------------------------------------------------------------------------------------
 
-    // Generate a map with all cells set to 0
+//------------------------------------------------------------------------------------------------------------------
+
+    // Generate a map with all cells set to 20
     Map map = generateMap(MAP_WIDTH, MAP_HEIGHT);
 
     // Generate the AI and player villages

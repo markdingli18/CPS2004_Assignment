@@ -1,21 +1,25 @@
 #include "header.h"
 
-// Return true if the user wants to continue playing, false otherwise
+// Determine if the game should continue running
 bool gameIsRunning() {
     // Prompt the user to continue or quit
-    std::cout << "\n=======================================================================\n"<< std::endl;
-    std::cout << "\t   Enter Q to quit or any other key to continue: ";
+    std::cout << "\n=======================================================================\n" << std::endl;
+    std::cout << "\t Enter Q to quit or any other key to continue: ";
     char input;
     std::cin >> input;
     std::cout << "\n=======================================================================\n" << std::endl;
+    // If the user entered 'Q' or 'q', return false (indicating the game should stop running)
     if (input == 'Q' || input == 'q') {
         std::cout << "\n=======================================================================\n" << std::endl;
         std::cout << "\t\t\tQUITTING THE GAME...\n";
         std::cout << "\n=======================================================================\n" << std::endl;
         return false;
     }
+
+    // Otherwise, return true (indicating the game should continue running)
     return true;
 }
+
 
 //------------------------------------------------------------------------------------------------------------------
 
@@ -29,12 +33,16 @@ bool winGame(std::vector<Village> &villages) {
 
     // Check if all the AI villages have run out of health
     bool allAIVillagesLost = true;
+    // iterate through all AI villages
     for (int i = 1; i < villages.size(); i++) {
+        // if any AI village has remaining health
         if (villages[i].health > 0) {
+            // set flag to false
             allAIVillagesLost = false;
-            break;
+            break; // exit loop
         }
     }
+
     if (allAIVillagesLost) {
         std::cout << "\n=======================================================================\n" << std::endl;
         std::cout << "\t\tALL AI VILLAGES DESTROYED!\n\t\t\tYOU WIN!." << std::endl;
@@ -44,5 +52,3 @@ bool winGame(std::vector<Village> &villages) {
 
     return false;
 }
-
-//------------------------------------------------------------------------------------------------------------------

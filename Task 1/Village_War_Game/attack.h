@@ -3,79 +3,140 @@
 
 #include "header.h"
 
+// variable declarations for number of each type of troop
 short swordsmanCount = 0;
 short archerCount = 0;
 short cavalryCount = 0;
 
+// function to attack a village
 void attackVillage(Village &attackingVillage, Village &defendingVillage) {
     // Create a vector to store the selected troops
     std::vector<Troop> selectedTroops;
 
+    // print information about the available troops
     std::cout << "\n=======================================================================\n"<< std::endl;
     std::cout << "Number of Swordsmen: " << swordsmanCount << std::endl;
     std::cout << "Number of Archers: " << archerCount << std::endl;
     std::cout << "Number of Cavalry: " << cavalryCount << std::endl;
     std::cout << "\n"<< std::endl;
 
-    // Prompt the player to select troops
+    // Prompt the player to select swordsmen
     std::cout << "Enter the number of Swordsmen you want to send: ";
     int numSwordsmen;
-    std::cin >> numSwordsmen;
+    // loop to get input from the player
+    while (true) {
+        // check if the input is valid
+        if (std::cin >> numSwordsmen) {
+            // check if the number of troops selected is within the available range
+            if (numSwordsmen >= 0 && numSwordsmen <= swordsmanCount) {
+                break;  // exit loop if input is valid
+            } else {
+                std::cout << "Invalid input. Please enter a number between 0 and " << swordsmanCount << ": ";
+            }
+        } else {
+            // clear the input stream and ignore any invalid characters
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "Invalid input. Please enter a number between 0 and " << swordsmanCount << ": ";
+        }
+    }
+
+    // loop to select the specified number of Swordsmen troops
     for (int i = 0; i < numSwordsmen; i++) {
         // Find a Swordsmen troop to send
         bool foundTroop = false;
+        // search through the attacking village's troops to find a Swordsmen
         for (size_t j = 0; j < attackingVillage.troops.size(); j++) {
             if (attackingVillage.troops[j].type == "Swordsman") {
+                // add the troop to the selected troops vector and remove it from the attacking village's troops
                 selectedTroops.push_back(attackingVillage.troops[j]);
                 attackingVillage.troops.erase(attackingVillage.troops.begin() + j);
                 foundTroop = true;
-                break;
+                break;  // exit inner loop once a Swordsmen is found
             }
         }
+        // if no Swordsmen is found, print a message and exit the loop
         if (!foundTroop) {
-            std::cout << "You don't have any more Swordsmen available.\n";
             break;
         }
     }
 
-    // Prompt the player to select troops
+    // Prompt the player to select Archers
     std::cout << "Enter the number of Archers you want to send: ";
-    int numArcher;
-    std::cin >> numArcher;
-    for (int i = 0; i < numArcher; i++) {
+    int numArchers;
+    // loop to get input from the player
+    while (true) {
+    // check if the input is valid
+        if (std::cin >> numArchers) {
+            // check if the number of troops selected is within the available range
+            if (numArchers >= 0 && numArchers <= archerCount) {
+                break; // exit loop if input is valid
+            } else {
+                std::cout << "Invalid input. Please enter a number between 0 and " << archerCount << ": ";
+            }
+        } else {
+            // clear the input stream and ignore any invalid characters
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "Invalid input. Please enter a number between 0 and " << archerCount << ": ";
+        }
+    }
+    // loop to select the specified number of Archer troops
+    for (int i = 0; i < numArchers; i++) {
         // Find an Archer troop to send
         bool foundTroop = false;
+        // search through the attacking village's troops to find an Archer
         for (size_t j = 0; j < attackingVillage.troops.size(); j++) {
             if (attackingVillage.troops[j].type == "Archer") {
+                // add the troop to the selected troops vector and remove it from the attacking village's troops
                 selectedTroops.push_back(attackingVillage.troops[j]);
                 attackingVillage.troops.erase(attackingVillage.troops.begin() + j);
                 foundTroop = true;
-                break;
+                break; // exit inner loop once an Archer is found
             }
         }
+        // if no Archer is found, print a message and exit the loop
         if (!foundTroop) {
-            std::cout << "You don't have any more Archers available.\n";
             break;
         }
     }
 
-    // Prompt the player to select troops
+    // Prompt the player to select cavalry
     std::cout << "Enter the number of Cavalry you want to send: ";
     int numCavalry;
-    std::cin >> numCavalry;
+    // loop to get input from the player
+    while (true) {
+        // check if the input is valid
+        if (std::cin >> numCavalry) {
+            // check if the number of troops selected is within the available range
+            if (numCavalry >= 0 && numCavalry <= cavalryCount) {
+                break; // exit loop if input is valid
+            } else {
+                std::cout << "Invalid input. Please enter a number between 0 and " << cavalryCount << ": ";
+            }
+        } else {
+            // clear the input stream and ignore any invalid characters
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "Invalid input. Please enter a number between 0 and " << cavalryCount << ": ";
+        }
+    }
+    // loop to select the specified number of Cavalry troops
     for (int i = 0; i < numCavalry; i++) {
         // Find a Cavalry troop to send
         bool foundTroop = false;
+        // search through the attacking village's troops to find a Cavalry
         for (size_t j = 0; j < attackingVillage.troops.size(); j++) {
             if (attackingVillage.troops[j].type == "Cavalry") {
+                // add the troop to the selected troops vector and remove it from the attacking village's troops
                 selectedTroops.push_back(attackingVillage.troops[j]);
                 attackingVillage.troops.erase(attackingVillage.troops.begin() + j);
                 foundTroop = true;
-                break;
+                break; // exit inner loop once a Cavalry is found
             }
         }
+        // if no Cavalry is found, print a message and exit the loop
         if (!foundTroop) {
-            std::cout << "You don't have any more Cavalry available.\n";
             break;
         }
     }
@@ -83,12 +144,14 @@ void attackVillage(Village &attackingVillage, Village &defendingVillage) {
     // Sum the attack of the selected troops
     int attackingVillageAttack = 0;
     for (const Troop &troop: selectedTroops) {
+        // add the attack of each selected troop to the total attack of the attacking village
         attackingVillageAttack += troop.attack;
     }
 
     // Sum the attack of the troops in the defending army
     int defendingVillageAttack = 0;
     for (const Troop &troop: defendingVillage.troops) {
+        // add the attack of each troop in the defending village to the total attack of the defending village
         defendingVillageAttack += troop.attack;
     }
 
@@ -97,13 +160,17 @@ void attackVillage(Village &attackingVillage, Village &defendingVillage) {
         // Choose a random troop from the attacking village to kill
         int troopIndex = std::rand() % selectedTroops.size();
         Troop &troop = selectedTroops[troopIndex];
+        // subtract the health of the chosen troop from the attacking village's attack
         attackingVillageAttack -= troop.health;
+        // remove the chosen troop from the attacking village's troops
         selectedTroops.erase(selectedTroops.begin() + troopIndex);
 
         // Choose a random troop from the defending village to kill
         troopIndex = std::rand() % defendingVillage.troops.size();
         troop = defendingVillage.troops[troopIndex];
+        // subtract the health of the chosen troop from the defending village's attack
         defendingVillageAttack -= troop.health;
+        // remove the chosen troop from the defending village's troops
         defendingVillage.troops.erase(defendingVillage.troops.begin() + troopIndex);
     }
 
@@ -112,23 +179,30 @@ void attackVillage(Village &attackingVillage, Village &defendingVillage) {
         // Calculate the total attack of the surviving troops
         int totalAttack = 0;
         for (const Troop &troop: selectedTroops) {
+            // add the attack of each surviving troop to the total attack
             totalAttack += troop.attack;
         }
 
         // Deal damage to the defending village
+        // subtract the total attack from the defending village's health
         defendingVillage.health -= totalAttack;
 
         // Calculate the carrying capacity of the surviving troops
         int carryingCapacity = 0;
         for (const Troop &troop: selectedTroops) {
+            // add the carrying capacity of each surviving troop to the total carrying capacity
             carryingCapacity += troop.carryingCapacity;
         }
 
         // Reduce resources from the defending village
+        // subtract the carrying capacity from the defending village's food
         defendingVillage.resources.food -= carryingCapacity;
+        // subtract the carrying capacity from the defending village's wood
         defendingVillage.resources.wood -= carryingCapacity;
+        // subtract the carrying capacity from the defending village's gold
         defendingVillage.resources.gold -= carryingCapacity;
 
+        // Output damage and resources lost from defending village
         std::cout << "\nThe defending village took " << totalAttack << " damage and lost " << carryingCapacity << " resources." << std::endl;
     }
     else {
@@ -174,7 +248,7 @@ void aiAttackVillage(Village &attacker, Village &defender) {
     // Create a vector to store the selected troops
     std::vector<Troop> selectedTroops;
 
-    // Select the specified number of troops
+    // Select the specified number of swordsmen
     for (int i = 0; i < swordsmen; i++) {
         // Find a Swordsmen troop to send
         bool foundTroop = false;
@@ -191,6 +265,7 @@ void aiAttackVillage(Village &attacker, Village &defender) {
         }
     }
 
+    // Select the specified number of archers
     for (int i = 0; i < archers; i++) {
         // Find an Archer troop to send
         bool foundTroop = false;
@@ -207,6 +282,7 @@ void aiAttackVillage(Village &attacker, Village &defender) {
         }
     }
 
+    // Select the specified number of cavalry
     for (int i = 0; i < cavalry; i++) {
         // Find a Cavalry troop to send
         bool foundTroop = false;
@@ -269,8 +345,11 @@ void aiAttackVillage(Village &attacker, Village &defender) {
         }
 
         // Reduce resources from the defending village
+        // subtract the carrying capacity from the defending village's food
         defender.resources.food -= carryingCapacity;
+        // subtract the carrying capacity from the defending village's wood
         defender.resources.wood -= carryingCapacity;
+        // subtract the carrying capacity from the defending village's gold
         defender.resources.gold -= carryingCapacity;
 
         std::cout << "\nThe defending village took " << totalAttack << " damage and lost " << carryingCapacity << " resources." << std::endl;
