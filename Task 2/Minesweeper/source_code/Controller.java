@@ -363,7 +363,7 @@ public class Controller {
             if(!cells.isFlagged_cell()){
                 cells.setFlagged_cell(true);
                 // Output flag symbol
-                cells.setText("⚐");
+                cells.setText("\uD83D\uDEA9");
                 // Increment variable
                 no_flagged_cells++;
                 Window.update(no_flagged_cells);

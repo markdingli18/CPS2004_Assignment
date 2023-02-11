@@ -39,7 +39,7 @@ public class Grid extends JPanel {
                 // Random number & finding best place for mine
                 int mine_position = (int) (Math.random() * upper_bound);
 
-                ///////// TESTING!!
+                //// TESTING
                 // Checking if generated random number is a duplicate
                 // If mine position is not duplicate:
                 if (!mines.contains(mine_position)) {
