@@ -2,10 +2,6 @@
 
 void welcome_message() {
 
-// Help
-
-
-
 // Display the top border
     std::cout << "=======================================================================\n" << std::endl;
     std::cout << "     /\\                                                        /\\\n"

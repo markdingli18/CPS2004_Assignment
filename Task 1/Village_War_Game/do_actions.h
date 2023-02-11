@@ -16,7 +16,7 @@ void doPlayerActions(Village& village, std::vector<Village> &villages) {
               << ", food - " << village.resources.food << std::endl;
     std::cout << "\n=======================================================================\n" << std::endl;
     std::cout
-            << "ACTIONS: \n1. Build/upgrade buildings\n2. Train troops\n3. Attack another village\n4. Surrender\n5. Pass the turn\n\nEnter the number of the action you want to take: ";
+            << "ACTIONS: \n1. Upgrade buildings\n2. Train troops\n3. Attack another village\n4. Surrender\n5. Pass the turn\n\nEnter the number of the action you want to take: ";
     // Read in the player's action
     int action;
     std::cin >> action;
